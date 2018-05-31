@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+
+  matx:
+    depends_on:
+      - mysql
+    build:
+      context: ./build
+      dockerfile: apache-php7.0
+    ports:
+      - "${HTTP_PORT}:80"
+      - "${HTTPS_PORT}:443"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DB_NAME}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASS}
+      WP_HOME: ${HOSTNAME}
+      WP_SITEURL: ${HOSTNAME}
+      WP_ENV: development
+    volumes:
+      - ./src/themes/matx:/var/www/html/web/app/themes/matx:Z
+      - ./src/uploads:/var/www/html/web/app/uploads:Z
+      - ./src/plugins:/var/www/html/web/app/plugins:Z
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASS}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+
+volumes:
+    db_data:
